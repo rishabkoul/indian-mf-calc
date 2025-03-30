@@ -56,6 +56,7 @@ function App() {
 
   const handleSchemeSelect = (scheme) => {
     setFormData((prev) => ({ ...prev, scheme_code: scheme.code }));
+    setSearchTerm(scheme.name);
     setShowAllSchemes(false);
   };
 
