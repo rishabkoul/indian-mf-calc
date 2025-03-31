@@ -1,0 +1,154 @@
+.investment-graph-container {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  margin: 24px 0;
+}
+
+.investment-graph-container h3 {
+  text-align: center;
+  color: #333;
+  margin: 0 0 24px 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.graph-section {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.graph-section:last-child {
+  margin-bottom: 0;
+}
+
+.graph-section h4 {
+  color: #333;
+  margin: 0 0 16px 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.custom-legend {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.legend-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.legend-line {
+  display: inline-block;
+  width: 24px;
+  height: 3px;
+  border-radius: 1.5px;
+}
+
+.legend-line.solid {
+  background: #666;
+}
+
+.legend-line.dashed {
+  background: #666;
+  border: 1px dashed #666;
+}
+
+.legend-line.divider {
+  background: none;
+  border: 1.5px dashed #ff6b6b;
+}
+
+.legend-line.nav {
+  background: #8884d8;
+}
+
+.legend-line.value {
+  background: #82ca9d;
+}
+
+.legend-line.units {
+  background: #ffc658;
+}
+
+.legend-line.actual {
+  background: #666;
+}
+
+.legend-line.predicted {
+  background: #666;
+  border: 1px dashed #ff6b6b;
+}
+
+.legend-separator {
+  width: 1px;
+  height: 40px;
+  background: #ddd;
+}
+
+.custom-tooltip {
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-size: 0.9rem;
+}
+
+.custom-tooltip p {
+  margin: 0;
+  padding: 4px 0;
+  line-height: 1.4;
+}
+
+.custom-tooltip .date {
+  font-weight: 600;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+}
+
+.custom-tooltip .nav {
+  color: #8884d8;
+  font-weight: 500;
+}
+
+.custom-tooltip .current_value {
+  color: #82ca9d;
+  font-weight: 500;
+}
+
+.custom-tooltip .units_till_date {
+  color: #ffc658;
+  font-weight: 500;
+}
+
+.custom-tooltip .predicted {
+  color: #ff6b6b;
+  font-style: italic;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+  font-weight: 500;
+}

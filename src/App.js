@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import "./App.css";
+import InvestmentGraph from "./InvestmentGraph";
 
 // API Configuration
 const API_CONFIG = {
@@ -31,6 +32,7 @@ function App() {
   const [schemes, setSchemes] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showAllSchemes, setShowAllSchemes] = useState(false);
+  const [showGraph, setShowGraph] = useState(false);
 
   // Fetch schemes based on search term
   const searchSchemes = useCallback(async () => {
@@ -67,7 +69,9 @@ function App() {
 
     try {
       const response = await axios.post(
-        `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CALCULATE_RETURNS}`,
+        `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CALCULATE_RETURNS}${
+          showGraph ? "?show_day_wise_nav=true" : ""
+        }`,
         {
           ...formData,
           amount: parseFloat(formData.amount),
@@ -288,54 +292,73 @@ function App() {
             </select>
           </div>
 
-          <button type="submit" disabled={loading}>
+          <div className="form-group checkbox-group">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={showGraph}
+                onChange={(e) => setShowGraph(e.target.checked)}
+              />
+              <span>Show detailed graphs</span>
+              <small className="performance-note">
+                ⚡ Enabling graphs may increase response time as it requires
+                additional calculations
+              </small>
+            </label>
+          </div>
+
+          <button type="submit" className="submit-button" disabled={loading}>
             {loading ? "Calculating..." : "Calculate Returns"}
           </button>
         </form>
 
         {error && <div className="error-message">{error}</div>}
 
+        {/* Results Section */}
         {result && (
-          <div className="result-container">
+          <div className="results-section">
             <h2>Investment Results</h2>
-            <div className="result-grid">
+            <div className="results-grid">
               <div className="result-item">
-                <label>Scheme Name</label>
-                <span>{result.scheme_name}</span>
+                <h3>Total Investment</h3>
+                <p>₹{result.total_investment.toFixed(2)}</p>
               </div>
               <div className="result-item">
-                <label>Total Investment</label>
-                <span>₹{result.total_investment.toLocaleString()}</span>
+                <h3>Current Value</h3>
+                <p>₹{result.current_value.toFixed(2)}</p>
               </div>
               <div className="result-item">
-                <label>Current Value</label>
-                <span>₹{result.current_value.toLocaleString()}</span>
+                <h3>Absolute Returns</h3>
+                <p>₹{result.absolute_returns.toFixed(2)}</p>
               </div>
               <div className="result-item">
-                <label>Absolute Returns</label>
-                <span>₹{result.absolute_returns.toLocaleString()}</span>
+                <h3>Returns %</h3>
+                <p>{result.percentage_returns.toFixed(2)}%</p>
               </div>
               <div className="result-item">
-                <label>Returns (%)</label>
-                <span>{result.percentage_returns.toFixed(2)}%</span>
+                <h3>Number of Installments</h3>
+                <p>{result.number_of_installments}</p>
               </div>
               <div className="result-item">
-                <label>Number of Installments</label>
-                <span>{result.number_of_installments}</span>
+                <h3>Average NAV</h3>
+                <p>₹{result.average_nav.toFixed(2)}</p>
               </div>
               <div className="result-item">
-                <label>Average NAV</label>
-                <span>₹{result.average_nav}</span>
+                <h3>Highest NAV</h3>
+                <p>₹{result.highest_nav.toFixed(2)}</p>
               </div>
               <div className="result-item">
-                <label>Highest NAV</label>
-                <span>₹{result.highest_nav}</span>
-              </div>
-              <div className="result-item">
-                <label>Lowest NAV</label>
-                <span>₹{result.lowest_nav}</span>
+                <h3>Lowest NAV</h3>
+                <p>₹{result.lowest_nav.toFixed(2)}</p>
               </div>
             </div>
+
+            {/* Investment Graph */}
+            {showGraph &&
+              result.day_wise_nav &&
+              result.day_wise_nav.length > 0 && (
+                <InvestmentGraph dayWiseData={result.day_wise_nav} />
+              )}
           </div>
         )}
       </main>
