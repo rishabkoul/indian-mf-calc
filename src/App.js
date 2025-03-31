@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import axios from "axios";
 import "./App.css";
 import InvestmentGraph from "./InvestmentGraph";
@@ -62,10 +62,22 @@ function App() {
     setShowAllSchemes(false);
   };
 
+  // Clear results when form data changes
+  useEffect(() => {
+    setResult(null);
+  }, [formData]);
+
+  // Memoize the filtered day wise data to prevent unnecessary recalculations
+  const memoizedDayWiseData = useMemo(() => {
+    return result?.day_wise_nav || null;
+  }, [result?.day_wise_nav]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    // Clear previous results immediately
     setResult(null);
 
     try {
@@ -120,8 +132,7 @@ adjusts predictions based on market cycles and volatility.
 `;
 
   // Update the footer text
-  const footerText =
-    `Data provided by AMFI India • Powered by Advanced Multi-timeframe Analysis • © ${new Date().getFullYear()}`;
+  const footerText = `Data provided by AMFI India • Powered by Advanced Multi-timeframe Analysis • © ${new Date().getFullYear()}`;
 
   return (
     <div className="App">
@@ -369,11 +380,11 @@ adjusts predictions based on market cycles and volatility.
             </div>
 
             {/* Investment Graph */}
-            {showGraph &&
-              result.day_wise_nav &&
-              result.day_wise_nav.length > 0 && (
-                <InvestmentGraph dayWiseData={result.day_wise_nav} />
-              )}
+            {showGraph && !loading && result && (
+              <div className="graph-container">
+                <InvestmentGraph dayWiseData={memoizedDayWiseData} />
+              </div>
+            )}
           </div>
         )}
       </main>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -11,123 +11,145 @@ import {
 } from "recharts";
 import "./InvestmentGraph.css";
 
-const InvestmentGraph = ({ dayWiseData }) => {
-  if (!dayWiseData || dayWiseData.length === 0) return null;
+// Format date for tooltip and axis
+const formatDate = (dateStr) => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-IN", {
+    year: "numeric",
+    month: "short",
+  });
+};
 
-  // Find the first predicted date
-  const firstPredictedIndex = dayWiseData.findIndex(
-    (data) => data.is_predicted
-  );
-  const firstPredictedDate =
-    firstPredictedIndex !== -1 ? dayWiseData[firstPredictedIndex].date : null;
+// Format currency
+const formatCurrency = (value) => {
+  if (value >= 10000000) {
+    return `₹${(value / 10000000).toFixed(2)}Cr`;
+  } else if (value >= 100000) {
+    return `₹${(value / 100000).toFixed(2)}L`;
+  } else if (value >= 1000) {
+    return `₹${(value / 1000).toFixed(2)}K`;
+  }
+  return `₹${value.toFixed(2)}`;
+};
 
-  // Format date for tooltip and axis
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-IN", {
-      year: "numeric",
-      month: "short",
-    });
-  };
+// Custom tooltip component
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    const value = data[payload[0].dataKey];
 
-  // Format currency
-  const formatCurrency = (value) => {
-    if (value >= 10000000) {
-      return `₹${(value / 10000000).toFixed(2)}Cr`;
-    } else if (value >= 100000) {
-      return `₹${(value / 100000).toFixed(2)}L`;
-    } else if (value >= 1000) {
-      return `₹${(value / 1000).toFixed(2)}K`;
+    // Format the value based on the data type
+    let formattedValue;
+    if (payload[0].dataKey === "units_till_date") {
+      formattedValue = value.toFixed(4);
+    } else {
+      formattedValue = formatCurrency(value);
     }
-    return `₹${value.toFixed(2)}`;
-  };
 
-  // Custom tooltip component
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      const value = data[payload[0].dataKey];
-
-      // Format the value based on the data type
-      let formattedValue;
-      if (payload[0].dataKey === "units_till_date") {
-        formattedValue = value.toFixed(4);
-      } else {
-        formattedValue = formatCurrency(value);
-      }
-
-      return (
-        <div className="custom-tooltip">
-          <p className="date">
-            {new Date(label).toLocaleDateString("en-IN", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </p>
-          <p className={payload[0].dataKey}>
-            {payload[0].name}: {formattedValue}
-          </p>
-          {data.is_predicted && <p className="predicted">⚡ Predicted Value</p>}
-        </div>
-      );
-    }
-    return null;
-  };
-
-  // Custom legend
-  const CustomLegend = () => (
-    <div className="custom-legend">
-      <div className="legend-section">
-        <div className="legend-item">
-          <span className="legend-line solid"></span>
-          <span>Data before red line: Actual historical data</span>
-        </div>
-        <div className="legend-item">
-          <span className="legend-line dashed"></span>
-          <span>Data after red line: AI predicted values</span>
-        </div>
+    return (
+      <div className="custom-tooltip">
+        <p className="date">
+          {new Date(label).toLocaleDateString("en-IN", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </p>
+        <p className={payload[0].dataKey}>
+          {payload[0].name}: {formattedValue}
+        </p>
+        {data.is_predicted && <p className="predicted">⚡ Predicted Value</p>}
       </div>
-      <div className="legend-separator"></div>
+    );
+  }
+  return null;
+};
+
+// Custom legend component
+const CustomLegend = () => (
+  <div className="custom-legend">
+    <div className="legend-section">
       <div className="legend-item">
-        <span className="legend-line divider"></span>
-        <span>Red dotted line: Prediction start date</span>
+        <span className="legend-line solid"></span>
+        <span>Data before red line: Actual historical data</span>
+      </div>
+      <div className="legend-item">
+        <span className="legend-line dashed"></span>
+        <span>Data after red line: AI predicted values</span>
       </div>
     </div>
+    <div className="legend-separator"></div>
+    <div className="legend-item">
+      <span className="legend-line divider"></span>
+      <span>Red dotted line: Prediction start date</span>
+    </div>
+  </div>
+);
+
+function InvestmentGraph({ dayWiseData }) {
+  // All useMemo hooks must be called before any conditional returns
+  const { firstPredictedDate } = useMemo(() => {
+    if (!dayWiseData || dayWiseData.length === 0)
+      return { firstPredictedDate: null };
+
+    const firstPredictedIndex = dayWiseData.findIndex(
+      (data) => data.is_predicted
+    );
+    return {
+      firstPredictedDate:
+        firstPredictedIndex !== -1
+          ? dayWiseData[firstPredictedIndex].date
+          : null,
+    };
+  }, [dayWiseData]);
+
+  const commonChartProps = useMemo(
+    () => ({
+      data: dayWiseData,
+      margin: { top: 20, right: 30, left: 20, bottom: 20 },
+      width: "100%",
+      height: 250,
+    }),
+    [dayWiseData]
   );
 
-  const commonChartProps = {
-    data: dayWiseData,
-    margin: { top: 20, right: 30, left: 20, bottom: 20 },
-    width: "100%",
-    height: 250,
-  };
+  const commonAxisProps = useMemo(
+    () => ({
+      tickFormatter: formatDate,
+      angle: -30,
+      textAnchor: "end",
+      height: 50,
+      stroke: "#666",
+      tick: { fill: "#666", fontSize: 12 },
+      interval: "preserveStartEnd",
+    }),
+    []
+  );
 
-  const commonAxisProps = {
-    tickFormatter: formatDate,
-    angle: -30,
-    textAnchor: "end",
-    height: 50,
-    stroke: "#666",
-    tick: { fill: "#666", fontSize: 12 },
-    interval: "preserveStartEnd",
-  };
+  const commonGridProps = useMemo(
+    () => ({
+      strokeDasharray: "3 3",
+      stroke: "#eee",
+    }),
+    []
+  );
 
-  const commonGridProps = {
-    strokeDasharray: "3 3",
-    stroke: "#eee",
-  };
-
-  const commonLineProps = {
-    type: "monotone",
-    strokeWidth: 2,
-    dot: false,
-    activeDot: {
-      r: 4,
+  const commonLineProps = useMemo(
+    () => ({
+      type: "monotone",
       strokeWidth: 2,
-      fill: "#fff",
-    },
-  };
+      dot: false,
+      activeDot: {
+        r: 4,
+        strokeWidth: 2,
+        fill: "#fff",
+      },
+    }),
+    []
+  );
+
+  // Early return after all hooks are called
+  if (!dayWiseData || dayWiseData.length === 0) return null;
 
   const renderReferenceLine = () =>
     firstPredictedDate && (
@@ -220,6 +242,7 @@ const InvestmentGraph = ({ dayWiseData }) => {
       </div>
     </div>
   );
-};
+}
 
-export default InvestmentGraph;
+// Export the memoized version of the component
+export default React.memo(InvestmentGraph);
