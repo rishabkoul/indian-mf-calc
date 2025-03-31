@@ -66,6 +66,7 @@ function App() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setResult(null);
 
     try {
       const response = await axios.post(
@@ -83,14 +84,21 @@ function App() {
         setError(
           "Too many requests. Please wait a moment before trying again."
         );
+      } else if (err.response?.data?.detail) {
+        // Handle structured error messages from the API
+        setError(err.response.data.detail);
       } else {
-        setError(err.response?.data?.error || "An error occurred");
+        setError(
+          err.response?.data?.error ||
+            "An unexpected error occurred. Please try again."
+        );
       }
 
+      // Clear error after 10 seconds only for rate limit errors
       if (err.response?.status === 429) {
         setTimeout(() => {
           setError(null);
-        }, 2000);
+        }, 10000);
       }
     } finally {
       setLoading(false);
