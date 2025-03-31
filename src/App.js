@@ -112,6 +112,17 @@ function App() {
     });
   };
 
+  // Update the prediction description
+  const predictionDescription = `
+Uses advanced multi-timeframe analysis combining CAGR, market cycles, and risk-adjusted growth factors
+for accurate future NAV predictions. The model analyzes multiple timeframes (7d, 15d, 30d, 90d) and
+adjusts predictions based on market cycles and volatility.
+`;
+
+  // Update the footer text
+  const footerText =
+    `Data provided by AMFI India • Powered by Advanced Multi-timeframe Analysis • © ${new Date().getFullYear()}`;
+
   return (
     <div className="App">
       <header className="App-header">
@@ -157,11 +168,7 @@ function App() {
           <div className="features">
             <div className="feature-item">
               <h3>🔮 Advanced Predictions</h3>
-              <p>
-                Uses SARIMA (Seasonal AutoRegressive Integrated Moving Average)
-                model for future return predictions, considering market cycles
-                and seasonal patterns for more accurate forecasting.
-              </p>
+              <p>{predictionDescription}</p>
             </div>
             <div className="feature-item">
               <h3>📊 Real-Time Data</h3>
@@ -372,10 +379,7 @@ function App() {
       </main>
 
       <footer className="App-footer">
-        <p>
-          Data provided by AMFI India • Powered by SARIMA Predictions •
-          Available on RapidAPI
-        </p>
+        <p>{footerText}</p>
         <p className="rate-limit-info">
           Free tier: 10 requests/second • Need more?{" "}
           <a
